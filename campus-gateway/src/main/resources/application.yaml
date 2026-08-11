@@ -1,0 +1,70 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: campus-gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 192.168.100.128:8848
+      discovery:
+        timeout: 5000
+        connect-timeout: 5000
+        heart-beat-interval: 5000
+        heart-beat-timeout: 15000
+    gateway:
+      # 全局跨域配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+      # 路由配置：统一入口，转发到各微服务（对标黑马商城 hm-gateway）
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+        - id: item-service
+          uri: lb://item-service
+          predicates:
+            - Path=/items/**
+        - id: activity-service
+          uri: lb://activity-service
+          predicates:
+            - Path=/activities/**
+        - id: info-service
+          uri: lb://info-service
+          predicates:
+            - Path=/infos/**,/losts/**
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+    com.alibaba.nacos: debug
+  pattern:
+    dateformat: HH:mm:ss:SSS
+  file:
+    path: "logs/${spring.application.name}"
+# JWT 配置（与 user-service 共享同一密钥；生产环境务必通过环境变量 JWT_SECRET 注入，不要用默认值）
+hm:
+  jwt:
+    secret: ${JWT_SECRET:campus-dev-secret-change-me}
+    tokenTTL: 30m
+  auth:
+    # 无需登录即可访问的公开接口（Ant 风格匹配，{id:[0-9]+} 限定数字 id，避免误伤 /me /page /favorites 等）
+    # 注意：只放行公开查询接口；发布/收藏/报名/打卡/点赞等写操作必须登录（网关校验 token 并透传 user-info）
+    excludePaths:
+      - /users/login
+      - /users/{id:[0-9]+}
+      - /items/page
+      - /items/{id:[0-9]+}
+      - /activities/page
+      - /activities/{id:[0-9]+}
+      - /activities/top
+      - /infos/page
+      - /infos/{id:[0-9]+}
+      - /losts/page
+      - /losts/{id:[0-9]+}

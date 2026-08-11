@@ -1,0 +1,30 @@
+# ===== Maven 构建产物 =====
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# ===== 前端依赖与构建产物 =====
+node_modules/
+dist/
+nginx/html/campus-life-web/node_modules/
+nginx/html/campus-life-web/dist/
+npm-debug.log*
+
+# ===== 运行日志 =====
+logs/
+*.log
+
+# ===== IDE 配置 =====
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store
+
+# ===== 本地环境配置（如需要提交模板，请用 application-xxx.example.yaml 并忽略真实配置）=====
+application-local.yaml
+application-dev-local.yaml
+
+# ===== 操作系统 =====
+Thumbs.db

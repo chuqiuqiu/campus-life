@@ -1,0 +1,16 @@
+# Seata 客户端公共配置（Nacos Data ID：shared-seata.yaml，group：DEFAULT_GROUP，格式：yaml）
+# 仅 user-service、item-service（参与分布式事务的服务）在 bootstrap.yaml 中引用
+# 采用 file 注册中心 + 直连地址模式（对标黑马商城官方配置），无需 Seata Server 注册到 Nacos
+seata:
+  registry:
+    type: file
+  # 事务分组：所有参与全局事务的客户端必须使用同一分组
+  tx-service-group: campus_tx_group
+  service:
+    vgroup-mapping:
+      campus_tx_group: default
+    # Seata Server 直连地址（虚拟机 8091 端口）
+    grouplist:
+      default: 192.168.100.128:8091
+  # 自动开启数据源代理（AT 模式必需）
+  enable-auto-data-source-proxy: true

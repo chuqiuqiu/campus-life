@@ -1,0 +1,4 @@
+# 公共接口文档配置（Nacos Data ID：shared-swagger.yaml，group：DEFAULT_GROUP，格式：yaml）
+# 各服务的标题/描述在各自 application.yaml 中配置
+knife4j:
+  enable: true

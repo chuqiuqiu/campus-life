@@ -1,0 +1,65 @@
+﻿server:
+  port: 8082
+spring:
+  application:
+    name: item-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://${hm.db.host}:3307/campus-item?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: ${hm.db.pw}
+  redis:
+    host: ${hm.redis.host}
+    port: 6379
+    password: ${hm.redis.pw}
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  cloud:
+    nacos:
+      server-addr: 192.168.100.128:8848
+      discovery:
+        timeout: 5000
+        connect-timeout: 5000
+        heart-beat-interval: 5000
+        heart-beat-timeout: 15000
+    sentinel:
+      transport:
+        dashboard: 192.168.100.128:8858
+mybatis-plus:
+  configuration:
+    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      update-strategy: not_null
+      id-type: auto
+logging:
+  level:
+    com.campus: debug
+  pattern:
+    dateformat: HH:mm:ss:SSS
+  file:
+    path: "logs/${spring.application.name}"
+knife4j:
+  enable: true
+  openapi:
+    title: 轻享校园-闲置服务接口文档
+    description: "校园闲置：发布/查询/详情（三级缓存）、收藏、浏览量统计、Seata 分布式事务"
+    email: campus@campus.com
+    concat: campus
+    url: https://www.campus.com
+    version: v1.0.0
+    group:
+      default:
+        group-name: default
+        api-rule: package
+        api-rule-resources:
+          - com.campus.item.controller
+feign:
+  okhttp:
+    enabled: true

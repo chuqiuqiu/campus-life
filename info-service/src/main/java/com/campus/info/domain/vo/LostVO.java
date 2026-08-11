@@ -1,0 +1,60 @@
+package com.campus.info.domain.vo;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+/**
+ * 失物招领展示 VO
+ */
+@Data
+public class LostVO {
+    /**
+     * 主键
+     */
+    private Long id;
+    /**
+     * 招领/寻物编号
+     */
+    private String lostNo;
+    /**
+     * 标题
+     */
+    private String title;
+    /**
+     * 描述
+     */
+    private String description;
+    /**
+     * 图片
+     */
+    private String image;
+    /**
+     * 物品类型
+     */
+    private String itemType;
+    /**
+     * 地点
+     */
+    private String location;
+    /**
+     * 联系方式
+     */
+    private String contact;
+    /**
+     * 类型：0寻物 1招领
+     */
+    private Integer type;
+    /**
+     * 状态：0寻找中 1已找到/已归还
+     */
+    private Integer status;
+    /**
+     * 发布者id
+     */
+    private Long userId;
+    /**
+     * 发布时间
+     */
+    private LocalDateTime createTime;
+}

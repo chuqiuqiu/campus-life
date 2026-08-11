@@ -1,0 +1,33 @@
+package com.campus.common.utils;
+
+/**
+ * 用户上下文：保存当前登录用户信息到 ThreadLocal（对标黑马商城 UserContext）
+ */
+public class UserContext {
+    private static final ThreadLocal<Long> tl = new ThreadLocal<>();
+
+    /**
+     * 保存当前登录用户信息到 ThreadLocal
+     *
+     * @param userId 用户id
+     */
+    public static void setUser(Long userId) {
+        tl.set(userId);
+    }
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return 用户id
+     */
+    public static Long getUser() {
+        return tl.get();
+    }
+
+    /**
+     * 移除当前登录用户信息
+     */
+    public static void removeUser() {
+        tl.remove();
+    }
+}

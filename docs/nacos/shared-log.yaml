@@ -1,0 +1,8 @@
+# 公共日志配置（Nacos Data ID：shared-log.yaml，group：DEFAULT_GROUP，格式：yaml）
+logging:
+  level:
+    com.campus: debug
+  pattern:
+    dateformat: HH:mm:ss:SSS
+  file:
+    path: "logs/${spring.application.name}"
