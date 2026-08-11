@@ -150,8 +150,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         // 状态筛选：状态是动态计算的，不能用 DB 静态字段，改用时间条件模拟
         if (query.getStatus() != null) {
             switch (query.getStatus()) {
-                case 0: // 报名中：未结束
-                    wrapper.gt(Activity::getEndTime, now);
+                case 0: // 报名中：未开始（与 calcStatus 的 status=0 语义一致）
+                    wrapper.gt(Activity::getStartTime, now);
                     break;
                 case 1: // 进行中：已开始且未结束
                     wrapper.le(Activity::getStartTime, now).gt(Activity::getEndTime, now);

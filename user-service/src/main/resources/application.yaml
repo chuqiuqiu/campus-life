@@ -62,6 +62,9 @@ hm:
   jwt:
     secret: ${JWT_SECRET:campus-dev-secret-change-me}
     tokenTTL: 30m
+  # 内部服务调用令牌：/users/credit/add 等内部接口仅允许携带该令牌的 Feign 调用访问
+  inner:
+    token: ${INNER_TOKEN:campus-inner-token-2024}
 feign:
   okhttp:
     enabled: true

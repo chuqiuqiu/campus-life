@@ -11,9 +11,12 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.validation.BindException;
 import org.springframework.web.util.NestedServletException;
 
-import java.net.BindException;
+import org.springframework.validation.BindException;
+import org.springframework.web.util.NestedServletException;
+
 import java.util.stream.Collectors;
 
 /**

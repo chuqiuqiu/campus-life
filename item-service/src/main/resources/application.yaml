@@ -60,6 +60,11 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.campus.item.controller
+# JWT 配置（与网关共享同一密钥；生产环境务必通过环境变量注入）已在网关配置
 feign:
   okhttp:
     enabled: true
+# 内部服务调用令牌：Feign 调用 user-service 内部接口时自动携带
+hm:
+  inner:
+    token: ${INNER_TOKEN:campus-inner-token-2024}

@@ -39,6 +39,10 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         // 1.获取请求
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
+        // 1.5 内部接口禁止外部访问（Feign 服务间调用走 Nacos 直连，不经过网关；外部一律拒绝）
+        if (path.startsWith("/users/credit/")) {
+            return forbidden(exchange.getResponse(), "内部接口，禁止外部访问");
+        }
         boolean isExclude = isExcludePath(path);
         // 2.获取 token（白名单路径也尝试解析：登录用户浏览公开页面时同样透传身份，用于点赞/收藏状态判断）
         String token = request.getHeaders().getFirst("authorization");
@@ -95,5 +99,14 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         return response.writeWith(Mono.just(response.bufferFactory()
                 .wrap(("{\"code\":401,\"msg\":\"" + msg + "\",\"data\":null}").getBytes())));
+    }
+
+    /**
+     * 返回 403 禁止访问响应（内部接口防护）
+     */
+    private Mono<Void> forbidden(ServerHttpResponse response, String msg) {
+        response.setStatusCode(HttpStatus.FORBIDDEN);
+        return response.writeWith(Mono.just(response.bufferFactory()
+                .wrap(("{\"code\":403,\"msg\":\"" + msg + "\",\"data\":null}").getBytes())));
     }
 }
