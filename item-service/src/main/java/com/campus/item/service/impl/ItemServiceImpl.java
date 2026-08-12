@@ -13,6 +13,7 @@ import com.campus.common.exception.BadRequestException;
 import com.campus.common.exception.BizIllegalException;
 import com.campus.common.exception.ForbiddenException;
 import com.campus.common.domain.R;
+import com.campus.common.utils.RedisUtils;
 import com.campus.item.client.UserClient;
 import com.campus.item.client.dto.SellerVO;
 import com.campus.item.domain.dto.ItemFormDTO;
@@ -223,7 +224,8 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
     @Override
     @Scheduled(fixedDelay = 60000)
     public void syncViewCount() {
-        Set<String> keys = stringRedisTemplate.keys(VIEW_ITEM_KEY + "*");
+        // 使用 SCAN 代替 KEYS（避免 O(N) 阻塞 Redis）
+        Set<String> keys = RedisUtils.scanKeys(stringRedisTemplate, VIEW_ITEM_KEY + "*");
         if (keys == null || keys.isEmpty()) {
             return;
         }
@@ -266,39 +268,44 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
     }
 
     /**
-     * 互斥锁方案：SETNX 加锁，未抢到锁则短暂休眠后重试；抢到锁后二次检查缓存
+     * 互斥锁方案：SETNX 加锁，未抢到锁则短暂休眠后循环重试（最多 20 次 ≈ 累计等待 1s）；
+     * 抢到锁后二次检查缓存再回源数据库
      */
     private Item queryWithMutex(Long id) {
-        String lockKey = LOCK_ITEM_KEY + id;
-        // 尝试加锁
-        Boolean locked = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, "1", LOCK_TTL.toMillis(), TimeUnit.MILLISECONDS);
-        if (Boolean.TRUE.equals(locked)) {
-            try {
-                // 二次检查 Redis（double check）
-                String json = stringRedisTemplate.opsForValue().get(CACHE_ITEM_KEY + id);
-                if (json != null) {
-                    return json.isEmpty() ? null : JSONUtil.toBean(json, Item.class);
+        final int maxRetry = 20;
+        for (int i = 0; i < maxRetry; i++) {
+            String lockKey = LOCK_ITEM_KEY + id;
+            // 尝试加锁
+            Boolean locked = stringRedisTemplate.opsForValue()
+                    .setIfAbsent(lockKey, "1", LOCK_TTL.toMillis(), TimeUnit.MILLISECONDS);
+            if (Boolean.TRUE.equals(locked)) {
+                try {
+                    // 二次检查 Redis（double check）
+                    String json = stringRedisTemplate.opsForValue().get(CACHE_ITEM_KEY + id);
+                    if (json != null) {
+                        return json.isEmpty() ? null : JSONUtil.toBean(json, Item.class);
+                    }
+                    // 查询数据库
+                    Item item = getById(id);
+                    if (item == null) {
+                        // 缓存空值（防穿透），短 TTL
+                        stringRedisTemplate.opsForValue().set(CACHE_ITEM_KEY + id, "", CACHE_NULL_TTL.toMillis(), TimeUnit.MILLISECONDS);
+                        return null;
+                    }
+                    // 回填缓存：随机 TTL 防雪崩
+                    long ttl = CACHE_TTL.getSeconds() + ThreadLocalRandom.current().nextLong(300);
+                    stringRedisTemplate.opsForValue().set(CACHE_ITEM_KEY + id, JSONUtil.toJsonStr(item), ttl, TimeUnit.SECONDS);
+                    caffeineCache.put(id, item);
+                    return item;
+                } finally {
+                    // 释放锁
+                    stringRedisTemplate.delete(lockKey);
                 }
-                // 查询数据库
-                Item item = getById(id);
-                if (item == null) {
-                    // 缓存空值（防穿透），短 TTL
-                    stringRedisTemplate.opsForValue().set(CACHE_ITEM_KEY + id, "", CACHE_NULL_TTL.toMillis(), TimeUnit.MILLISECONDS);
-                    return null;
-                }
-                // 回填缓存：随机 TTL 防雪崩
-                long ttl = CACHE_TTL.getSeconds() + ThreadLocalRandom.current().nextLong(300);
-                stringRedisTemplate.opsForValue().set(CACHE_ITEM_KEY + id, JSONUtil.toJsonStr(item), ttl, TimeUnit.SECONDS);
-                caffeineCache.put(id, item);
-                return item;
-            } finally {
-                // 释放锁
-                stringRedisTemplate.delete(lockKey);
             }
+            // 未抢到锁：休眠 50ms 后重试（等待持锁线程回填缓存）；超限抛异常，避免无限递归
+            ThreadUtil.sleep(50);
         }
-        // 未抢到锁：休眠 50ms 后递归重试（等待持锁线程回填缓存）
-        ThreadUtil.sleep(50);
-        return queryWithCache(id);
+        throw new BizIllegalException("系统繁忙，请稍后再试");
     }
 
     /**
@@ -309,7 +316,8 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
         caffeineCache.invalidate(id);
         stringRedisTemplate.delete(CACHE_ITEM_KEY + id);
         // 简单清理：首页列表缓存整体失效
-        Set<String> keys = stringRedisTemplate.keys(CACHE_ITEM_LIST_KEY + "*");
+        // 使用 SCAN 代替 KEYS（避免 O(N) 阻塞 Redis）
+        Set<String> keys = RedisUtils.scanKeys(stringRedisTemplate, CACHE_ITEM_LIST_KEY + "*");
         if (keys != null && !keys.isEmpty()) {
             stringRedisTemplate.delete(keys);
         }
