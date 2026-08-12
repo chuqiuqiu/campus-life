@@ -57,6 +57,20 @@ public class LostController {
     }
 
     /**
+     * 删除失物记录（仅发布者本人可操作）
+     */
+    @ApiOperation("删除失物记录")
+    @DeleteMapping("/{id}")
+    public R<Void> deleteLost(@PathVariable("id") Long id) {
+        Long userId = UserContext.getUser();
+        if (userId == null) {
+            throw new UnauthorizedException("请先登录");
+        }
+        lostService.deleteLost(id, userId);
+        return R.ok();
+    }
+
+    /**
      * 更新状态（已找到/已归还）
      */
     @ApiOperation("更新状态")

@@ -146,6 +146,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         // 空字符串视为无筛选（前端 el-select 清空后传 "" 而非 null）
         boolean keywordBlank = cn.hutool.core.util.StrUtil.isBlank(query.getKeyword());
         LambdaQueryWrapper<Activity> wrapper = new LambdaQueryWrapper<Activity>()
+                .eq(query.getUserId() != null, Activity::getOrganizerId, query.getUserId())
                 .like(!keywordBlank, Activity::getTitle, query.getKeyword())
                 .orderByDesc(Activity::getCreateTime);
         // 状态筛选：状态是动态计算的，不能用 DB 静态字段，改用时间条件模拟

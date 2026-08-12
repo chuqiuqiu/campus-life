@@ -49,6 +49,7 @@ public class LostServiceImpl extends ServiceImpl<LostMapper, Lost> implements IL
                 .eq(query.getType() != null, Lost::getType, query.getType())
                 .eq(!itemTypeBlank, Lost::getItemType, query.getItemType())
                 .like(!keywordBlank, Lost::getTitle, query.getKeyword())
+                .eq(query.getUserId() != null, Lost::getUserId, query.getUserId())
                 .orderByDesc(Lost::getCreateTime);
         Page<Lost> p = page(new Page<>(query.getPageNo(), query.getPageSize()), wrapper);
         return PageDTO.of(p, lost -> BeanUtil.copyProperties(lost, LostVO.class));
@@ -77,5 +78,20 @@ public class LostServiceImpl extends ServiceImpl<LostMapper, Lost> implements IL
         }
         lost.setStatus(status);
         updateById(lost);
+    }
+
+    /**
+     * 删除失物记录（仅发布者本人可操作）
+     */
+    @Override
+    public void deleteLost(Long id, Long userId) {
+        Lost lost = getById(id);
+        if (lost == null) {
+            throw new BadRequestException("记录不存在");
+        }
+        if (!lost.getUserId().equals(userId)) {
+            throw new ForbiddenException("无权删除他人的记录");
+        }
+        removeById(id);
     }
 }

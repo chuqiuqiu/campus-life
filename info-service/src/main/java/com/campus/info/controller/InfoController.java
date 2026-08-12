@@ -59,6 +59,20 @@ public class InfoController {
     }
 
     /**
+     * 删除资讯（仅发布者本人可操作）
+     */
+    @ApiOperation("删除资讯")
+    @DeleteMapping("/{id}")
+    public R<Void> deleteInfo(@PathVariable("id") Long id) {
+        Long userId = UserContext.getUser();
+        if (userId == null) {
+            throw new UnauthorizedException("请先登录");
+        }
+        infoService.deleteInfo(id, userId);
+        return R.ok();
+    }
+
+    /**
      * 点赞资讯
      */
     @ApiOperation("点赞资讯")

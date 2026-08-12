@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.campus.common.domain.PageDTO;
 import com.campus.common.exception.BadRequestException;
+import com.campus.common.exception.ForbiddenException;
 import com.campus.common.utils.RedisUtils;
 import com.campus.common.utils.UserContext;
 import com.campus.info.domain.dto.InfoFormDTO;
@@ -75,7 +76,7 @@ public class InfoServiceImpl extends ServiceImpl<InfoMapper, Info> implements II
         // 热门资讯（首页无筛选）走 Redis 缓存；空字符串视为无筛选（前端 el-select 清空后传 "" 而非 null）
         boolean categoryBlank = StrUtil.isBlank(query.getCategory());
         boolean keywordBlank = StrUtil.isBlank(query.getKeyword());
-        boolean cacheable = categoryBlank && keywordBlank && query.getPageNo() == 1;
+        boolean cacheable = categoryBlank && keywordBlank && query.getUserId() == null && query.getPageNo() == 1;
         String cacheKey = CACHE_INFO_LIST_KEY + query.getPageSize();
         if (cacheable) {
             String json = stringRedisTemplate.opsForValue().get(cacheKey);
@@ -88,8 +89,11 @@ public class InfoServiceImpl extends ServiceImpl<InfoMapper, Info> implements II
                 return result;
             }
         }
+        // "我的发布"查全部状态，公共列表仅查已发布（status=1）
+        boolean isMyPublish = query.getUserId() != null;
         LambdaQueryWrapper<Info> wrapper = new LambdaQueryWrapper<Info>()
-                .eq(Info::getStatus, 1)
+                .eq(!isMyPublish, Info::getStatus, 1)
+                .eq(isMyPublish, Info::getAuthorId, query.getUserId())
                 .eq(!categoryBlank, Info::getCategory, query.getCategory())
                 .like(!keywordBlank, Info::getTitle, query.getKeyword())
                 .orderByDesc(Info::getCreateTime);
@@ -181,6 +185,25 @@ public class InfoServiceImpl extends ServiceImpl<InfoMapper, Info> implements II
                 vo.setViewCount((vo.getViewCount() == null ? 0 : vo.getViewCount()) + Integer.parseInt(incrStr));
             }
         });
+    }
+
+    /**
+     * 删除资讯（仅发布者本人可操作），删除后清理缓存与浏览量记录
+     */
+    @Override
+    public void deleteInfo(Long id, Long userId) {
+        Info info = getById(id);
+        if (info == null) {
+            throw new BadRequestException("资讯不存在");
+        }
+        if (!info.getAuthorId().equals(userId)) {
+            throw new ForbiddenException("无权删除他人的资讯");
+        }
+        removeById(id);
+        // 清理列表缓存
+        evictListCache();
+        // 清理 Redis 浏览量计数
+        stringRedisTemplate.delete("view:info:" + id);
     }
 
     private void evictListCache() {

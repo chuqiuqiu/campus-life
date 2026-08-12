@@ -70,6 +70,18 @@ public class ItemController {
     }
 
     /**
+     * 删除闲置（仅发布者本人可操作）
+     */
+    @ApiOperation("删除闲置")
+    @DeleteMapping("/{id}")
+    public R<Void> deleteItem(@PathVariable("id") Long id) {
+        Long userId = UserContext.getUser();
+        requireLogin(userId);
+        itemService.deleteItem(id, userId);
+        return R.ok();
+    }
+
+    /**
      * 更新闲置状态（出售/下架）
      */
     @ApiOperation("更新闲置状态")

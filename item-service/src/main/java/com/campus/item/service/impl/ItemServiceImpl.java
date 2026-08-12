@@ -127,8 +127,8 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
         boolean categoryBlank = StrUtil.isBlank(query.getCategory());
         boolean campusBlank = StrUtil.isBlank(query.getCampusArea());
         boolean keywordBlank = StrUtil.isBlank(query.getKeyword());
-        // 首页列表（无任何筛选条件）走缓存
-        boolean cacheable = categoryBlank && campusBlank && keywordBlank && query.getPageNo() == 1;
+        // 首页列表（无任何筛选条件，且非"我的发布"查询）走缓存
+        boolean cacheable = categoryBlank && campusBlank && keywordBlank && query.getUserId() == null && query.getPageNo() == 1;
         String cacheKey = CACHE_ITEM_LIST_KEY + query.getPageNo() + ":" + query.getPageSize();
         if (cacheable) {
             String json = stringRedisTemplate.opsForValue().get(cacheKey);
@@ -141,9 +141,11 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
                 return result;
             }
         }
-        // 构建查询条件：仅查询在售商品
+        // 构建查询条件："我的发布"查全部状态，公共列表仅查在售（status=0）
+        boolean isMyPublish = query.getUserId() != null;
         LambdaQueryWrapper<Item> wrapper = new LambdaQueryWrapper<Item>()
-                .eq(Item::getStatus, 0)
+                .eq(!isMyPublish, Item::getStatus, 0)
+                .eq(isMyPublish, Item::getSellerId, query.getUserId())
                 .eq(!categoryBlank, Item::getCategory, query.getCategory())
                 .eq(!campusBlank, Item::getCampusArea, query.getCampusArea())
                 .like(!keywordBlank, Item::getTitle, query.getKeyword())
@@ -321,6 +323,26 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
         if (keys != null && !keys.isEmpty()) {
             stringRedisTemplate.delete(keys);
         }
+    }
+
+    /**
+     * 删除闲置（仅发布者本人或管理员可操作），删除后清理缓存与浏览量记录
+     */
+    @Override
+    public void deleteItem(Long id, Long userId) {
+        Item item = getById(id);
+        if (item == null) {
+            throw new BadRequestException("闲置不存在");
+        }
+        // 权限校验：仅发布者本人可删除（管理员接口可后续扩展）
+        if (!item.getSellerId().equals(userId)) {
+            throw new ForbiddenException("无权删除他人的闲置");
+        }
+        removeById(id);
+        // 清理缓存
+        evictCache(id);
+        // 清理 Redis 浏览量计数
+        stringRedisTemplate.delete("view:item:" + id);
     }
 
     /**

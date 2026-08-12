@@ -31,4 +31,12 @@ public interface ILostService extends IService<Lost> {
      * 更新状态（已找到/已归还），仅发布者可操作
      */
     void updateStatus(Long id, Integer status, Long userId);
+
+    /**
+     * 删除失物记录（仅发布者本人可操作）
+     *
+     * @param id     失物id
+     * @param userId 当前用户id
+     */
+    void deleteLost(Long id, Long userId);
 }

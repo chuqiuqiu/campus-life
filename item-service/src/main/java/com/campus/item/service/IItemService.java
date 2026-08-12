@@ -55,4 +55,12 @@ public interface IItemService extends IService<Item> {
      * 清理闲置两级缓存（发布/收藏/状态变更后调用，保证列表与详情实时一致）
      */
     void evictCache(Long id);
+
+    /**
+     * 删除闲置（仅发布者本人或管理员可操作），删除后清理缓存
+     *
+     * @param id     闲置id
+     * @param userId 当前用户id
+     */
+    void deleteItem(Long id, Long userId);
 }

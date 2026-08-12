@@ -22,4 +22,8 @@ public class ItemPageQuery extends PageQuery {
      * 校区
      */
     private String campusArea;
+    /**
+     * 发布者id（"我的发布"筛选用，为空则查全部）
+     */
+    private Long userId;
 }

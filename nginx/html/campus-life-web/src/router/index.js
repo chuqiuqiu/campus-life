@@ -14,6 +14,7 @@ const routes = [
   { path: '/infos', name: 'Infos', component: () => import('../views/Infos.vue') },
   { path: '/infos/:id', name: 'InfoDetail', component: () => import('../views/InfoDetail.vue') },
   { path: '/losts', name: 'Losts', component: () => import('../views/Losts.vue') },
+  { path: '/losts/:id', name: 'LostDetail', component: () => import('../views/LostDetail.vue') },
   { path: '/profile', name: 'Profile', component: () => import('../views/Profile.vue') }
 ]
 
@@ -24,7 +25,7 @@ const router = new VueRouter({
 
 // 全局路由守卫：需要登录的页面校验 token
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login', '/', '/items', '/activities', '/infos', '/losts']
+  const publicPages = ['/login', '/', '/items', '/activities', '/infos', '/losts', '/losts/']
   const matchedPublic = publicPages.some(p => to.path === p || to.path.startsWith(p + '/'))
   if (matchedPublic) {
     next()

@@ -35,4 +35,12 @@ public interface IInfoService extends IService<Info> {
      * @return 真实点赞数
      */
     Long likeInfo(Long id, Long userId);
+
+    /**
+     * 删除资讯（仅发布者本人可操作），删除后清理缓存
+     *
+     * @param id     资讯id
+     * @param userId 当前用户id
+     */
+    void deleteInfo(Long id, Long userId);
 }

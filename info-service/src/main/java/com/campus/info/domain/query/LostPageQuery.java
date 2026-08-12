@@ -22,4 +22,8 @@ public class LostPageQuery extends PageQuery {
      * 关键词（模糊匹配标题）
      */
     private String keyword;
+    /**
+     * 发布者id（"我的发布"筛选用，为空则查全部）
+     */
+    private Long userId;
 }
