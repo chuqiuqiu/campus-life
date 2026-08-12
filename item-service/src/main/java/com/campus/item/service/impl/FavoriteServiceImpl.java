@@ -66,11 +66,24 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
         itemMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Item>()
                 .eq(Item::getId, itemId)
                 .setSql("favorite_count = favorite_count + 1"));
-        // 5.落库冗余一条收藏记录
+        // 5.落库冗余一条收藏记录（失败时回滚，避免 Redis/计数与记录不一致）
         Favorite favorite = new Favorite();
         favorite.setItemId(itemId);
         favorite.setUserId(userId);
-        save(favorite);
+        try {
+            save(favorite);
+        } catch (Exception e) {
+            // 回滚：移除 Redis Set 成员 + 计数回退 + DB favorite_count -1
+            stringRedisTemplate.opsForSet().remove(FAVORITE_ITEM_KEY + itemId, userId.toString());
+            stringRedisTemplate.opsForSet().remove(FAVORITE_USER_KEY + userId, itemId.toString());
+            stringRedisTemplate.opsForValue().decrement(FAVORITE_COUNT_KEY + itemId);
+            itemMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Item>()
+                    .eq(Item::getId, itemId)
+                    .gt(Item::getFavoriteCount, 0)
+                    .setSql("favorite_count = favorite_count - 1"));
+            log.warn("收藏落库失败，已回滚：itemId = {}, userId = {}", itemId, userId);
+            throw new BizIllegalException("收藏失败，请稍后重试");
+        }
         // 6.清理闲置详情/列表缓存，保证收藏数实时（否则命中旧缓存数字不变）
         itemService.evictCache(itemId);
         return true;
