@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.campus.common.domain.PageDTO;
 import com.campus.common.exception.BadRequestException;
+import com.campus.common.utils.RedisUtils;
 import com.campus.common.utils.UserContext;
 import com.campus.info.domain.dto.InfoFormDTO;
 import com.campus.info.domain.po.Info;
@@ -183,7 +184,8 @@ public class InfoServiceImpl extends ServiceImpl<InfoMapper, Info> implements II
     }
 
     private void evictListCache() {
-        java.util.Set<String> keys = stringRedisTemplate.keys(CACHE_INFO_LIST_KEY + "*");
+        // 使用 SCAN 代替 KEYS（避免 O(N) 阻塞 Redis）
+        java.util.Set<String> keys = RedisUtils.scanKeys(stringRedisTemplate, CACHE_INFO_LIST_KEY + "*");
         if (keys != null && !keys.isEmpty()) {
             stringRedisTemplate.delete(keys);
         }
