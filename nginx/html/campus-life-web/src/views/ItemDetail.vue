@@ -57,7 +57,7 @@ export default {
             }
         },
         async handleFavorite() {
-            if (!getToken()) return this.$message.warning('请先登录')
+            if (!getToken()) { this.$message.warning('请先登录'); return this.$router.push('/login') }
             const id = this.$route.params.id
             if (this.favorited) {
                 await unfavoriteItem(id)

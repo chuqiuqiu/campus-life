@@ -58,12 +58,13 @@ export default {
     methods: {
         handleCommand(command) {
             if (command === 'profile') {
-                this.$router.push('/profile')
+                this.$router.push('/profile').catch(() => {})
             } else if (command === 'logout') {
                 clearAuth()
                 this.userInfo = null
                 this.$message.success('已退出登录')
-                this.$router.push('/')
+                // 跳转回首页，catch 抑制 NavigationDuplicated（已在首页时）
+                this.$router.push('/').catch(() => {})
             }
         }
     }

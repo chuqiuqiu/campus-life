@@ -30,7 +30,7 @@ export default {
             this.info = await getInfoById(this.$route.params.id)
         },
         async handleLike() {
-            if (!getToken()) return this.$message.warning('请先登录')
+            if (!getToken()) { this.$message.warning('请先登录'); return this.$router.push('/login') }
             await likeInfo(this.$route.params.id)
             this.load()
         },

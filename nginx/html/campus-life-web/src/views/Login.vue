@@ -44,8 +44,19 @@ export default {
                     const data = await login(this.form)
                     setToken(data.token)
                     setUserInfo({ userId: data.userId, nickName: data.nickName, avatar: data.avatar })
-                    this.$message.success('登录成功')
+                    this.$message.success('登录成功，欢迎回来！')
                     this.$router.push('/')
+                } catch (e) {
+                    // 错误已在 request.js 中统一提示（显示后端返回的消息）
+                    // 这里做额外处理：密码类错误自动清空密码框
+                    if (e.message && (
+                        e.message.includes('密码') || 
+                        e.message.includes('账号') || 
+                        e.message.includes('手机号'))
+                    ) {
+                        this.form.password = ''
+                    }
+                    // 其他错误（如限流、系统繁忙等）由全局拦截器统一提示
                 } finally {
                     this.loading = false
                 }

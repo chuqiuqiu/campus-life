@@ -54,7 +54,7 @@ export default {
             this.act = await getActivityById(this.$route.params.id)
         },
         async handleSignup() {
-            if (!getToken()) return this.$message.warning('请先登录')
+            if (!getToken()) { this.$message.warning('请先登录'); return this.$router.push('/login') }
             const data = await signupActivity(this.$route.params.id)
             this.$message.success('报名成功！凭证编号：' + data.signNo)
             this.load()
@@ -79,7 +79,7 @@ export default {
             this.load()
         },
         async handleLike() {
-            if (!getToken()) return this.$message.warning('请先登录')
+            if (!getToken()) { this.$message.warning('请先登录'); return this.$router.push('/login') }
             await likeActivity(this.$route.params.id)
             this.load()
         },

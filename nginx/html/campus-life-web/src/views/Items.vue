@@ -92,7 +92,7 @@ export default {
         },
         async handleAdd() {
             if (!this.form.title) return this.$message.warning('请输入标题')
-            if (!getToken()) return this.$message.warning('请先登录')
+            if (!getToken()) { this.$message.warning('请先登录'); return this.$router.push('/login') }
             await addItem(this.form)
             this.$message.success('发布成功，已获得 10 积分（Seata 分布式事务）')
             this.dialogVisible = false

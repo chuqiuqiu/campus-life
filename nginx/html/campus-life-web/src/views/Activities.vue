@@ -110,7 +110,7 @@ export default {
             if (!this.form.title || !this.form.startTime || !this.form.endTime) {
                 return this.$message.warning('请填写完整信息')
             }
-            if (!getToken()) return this.$message.warning('请先登录')
+            if (!getToken()) { this.$message.warning('请先登录'); return this.$router.push('/login') }
             await addActivity(this.form)
             this.$message.success('发布成功')
             this.dialogVisible = false
