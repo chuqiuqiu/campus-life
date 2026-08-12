@@ -33,6 +33,7 @@ import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -246,7 +247,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     /**
-     * 热度排行榜：Redis ZSet 按 score 倒序取前 n 名
+     * 热度排行榜：Redis ZSet 按 score 倒序取前 n 名（批量查询，避免 N+1）
      */
     @Override
     public List<ActivityTopVO> topActivities(Integer n) {
@@ -255,24 +256,40 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         java.util.Set<ZSetOperations.TypedTuple<String>> tuples =
                 stringRedisTemplate.opsForZSet().reverseRangeWithScores(HEAT_RANK_KEY, 0, n - 1);
         List<ActivityTopVO> list = new ArrayList<>();
-        int rank = 1;
-        if (tuples != null) {
-            for (ZSetOperations.TypedTuple<String> tuple : tuples) {
-                if (tuple.getValue() == null || tuple.getScore() == null) {
-                    continue;
-                }
-                Activity activity = getById(Long.valueOf(tuple.getValue()));
-                if (activity == null) {
-                    continue;
-                }
-                ActivityTopVO vo = new ActivityTopVO();
-                vo.setId(activity.getId());
-                vo.setTitle(activity.getTitle());
-                vo.setImage(activity.getImage());
-                vo.setHeat(tuple.getScore());
-                vo.setRank(rank++);
-                list.add(vo);
+        if (tuples == null || tuples.isEmpty()) {
+            return list;
+        }
+        // 1.收集活动 id 与热度分数
+        List<Long> ids = new ArrayList<>();
+        Map<Long, Double> scoreMap = new HashMap<>();
+        for (ZSetOperations.TypedTuple<String> tuple : tuples) {
+            if (tuple.getValue() == null || tuple.getScore() == null) {
+                continue;
             }
+            Long id = Long.valueOf(tuple.getValue());
+            ids.add(id);
+            scoreMap.put(id, tuple.getScore());
+        }
+        if (ids.isEmpty()) {
+            return list;
+        }
+        // 2.批量查询活动，避免逐个 getById 的 N+1 问题
+        Map<Long, Activity> activityMap = listByIds(ids).stream()
+                .collect(java.util.stream.Collectors.toMap(Activity::getId, a -> a));
+        // 3.按 ZSet 顺序组装（保持热度降序）
+        int rank = 1;
+        for (Long id : ids) {
+            Activity activity = activityMap.get(id);
+            if (activity == null) {
+                continue;
+            }
+            ActivityTopVO vo = new ActivityTopVO();
+            vo.setId(activity.getId());
+            vo.setTitle(activity.getTitle());
+            vo.setImage(activity.getImage());
+            vo.setHeat(scoreMap.get(id));
+            vo.setRank(rank++);
+            list.add(vo);
         }
         return list;
     }
@@ -284,19 +301,24 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     @Scheduled(fixedDelay = 300000)
     public void syncHeat() {
         LocalDateTime now = LocalDateTime.now();
-        // 1.热度同步回 DB（冗余存储）
+        // 1.热度批量同步回 DB（MP 批处理，减少网络往返）
         java.util.Set<ZSetOperations.TypedTuple<String>> tuples =
                 stringRedisTemplate.opsForZSet().rangeWithScores(HEAT_RANK_KEY, 0, -1);
         int count = 0;
-        if (tuples != null) {
+        if (tuples != null && !tuples.isEmpty()) {
+            List<Activity> updates = new ArrayList<>();
             for (ZSetOperations.TypedTuple<String> tuple : tuples) {
                 if (tuple.getValue() == null || tuple.getScore() == null) {
                     continue;
                 }
-                update(null, new LambdaUpdateWrapper<Activity>()
-                        .eq(Activity::getId, tuple.getValue())
-                        .set(Activity::getHeat, tuple.getScore()));
-                count++;
+                Activity a = new Activity();
+                a.setId(Long.valueOf(tuple.getValue()));
+                a.setHeat(tuple.getScore());
+                updates.add(a);
+            }
+            if (!updates.isEmpty()) {
+                updateBatchById(updates);
+                count = updates.size();
             }
         }
         // 2.已结束活动落库 status=2
