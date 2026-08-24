@@ -14,12 +14,13 @@
                     <p>👤 组织者：{{ act.organizerName || ('用户' + act.organizerId) }}</p>
                 </div>
                 <div class="actions">
-                    <el-button v-if="!act.signedUp && act.status !== 2" type="primary" icon="el-icon-plus"
+                    <el-button v-if="!act.signedUp && act.status === 0" type="primary" icon="el-icon-plus"
                                @click="handleSignup">立即报名</el-button>
                     <el-button v-if="act.signedUp && act.status !== 2" type="danger" plain icon="el-icon-remove"
                                @click="handleCancelSignup">取消报名</el-button>
-                    <el-button v-if="act.signedUp && act.checkin !== 1" type="success" icon="el-icon-check"
+                    <el-button v-if="act.signedUp && !act.checkin && act.status === 1" type="success" icon="el-icon-check"
                                @click="handleCheckin">打卡</el-button>
+                    <el-tag v-if="act.signedUp && act.checkin" type="success" size="small" style="margin-left:8px">已打卡</el-tag>
                     <el-button :type="act.liked ? 'warning' : 'default'" :plain="!act.liked" icon="el-icon-star-on"
                                @click="handleLike">点赞 {{ act.likeCount }}</el-button>
                     <el-button v-if="act.isOwner" type="danger" icon="el-icon-delete"

@@ -12,6 +12,7 @@ import com.campus.common.domain.PageDTO;
 import com.campus.common.exception.BadRequestException;
 import com.campus.common.exception.BizIllegalException;
 import com.campus.common.exception.ForbiddenException;
+import com.campus.common.exception.NotFoundException;
 import com.campus.common.domain.R;
 import com.campus.common.utils.RedisUtils;
 import com.campus.item.client.UserClient;
@@ -189,7 +190,8 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
         stringRedisTemplate.opsForValue().increment(VIEW_ITEM_KEY + id);
         Item item = queryWithCache(id);
         if (item == null) {
-            return null;
+            // 查无此闲置：404 语义（区分于系统错误）
+            throw new NotFoundException("闲置不存在");
         }
         ItemVO vo = BeanUtil.copyProperties(item, ItemVO.class);
         // 浏览量 = DB 存量 + Redis 增量
@@ -205,7 +207,7 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
     public void updateStatus(Long id, Integer status, Long userId) {
         Item item = getById(id);
         if (item == null) {
-            throw new BadRequestException("闲置不存在");
+            throw new NotFoundException("闲置不存在");
         }
         // 仅发布者可操作
         if (!item.getSellerId().equals(userId)) {
@@ -234,14 +236,22 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
         for (String key : keys) {
             String id = key.substring(VIEW_ITEM_KEY.length());
             String value = stringRedisTemplate.opsForValue().getAndDelete(key);
-            if (value == null || Long.parseLong(value) == 0) {
+            if (value == null) {
                 continue;
             }
-            // 合并到 DB（原子自增），并清理缓存
-            update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Item>()
-                    .eq(Item::getId, id)
-                    .setSql("view_count = view_count + " + value));
-            evictCache(Long.valueOf(id));
+            try {
+                long incr = Long.parseLong(value);
+                if (incr == 0) {
+                    continue;
+                }
+                // 合并到 DB（原子自增），并清理缓存
+                update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Item>()
+                        .eq(Item::getId, id)
+                        .setSql("view_count = view_count + " + incr));
+                evictCache(Long.valueOf(id));
+            } catch (NumberFormatException e) {
+                log.warn("闲置浏览量脏值，已跳过：key = {}, value = {}", key, value);
+            }
         }
         log.info("浏览量合并完成，共处理 {} 个闲置", keys.size());
     }
@@ -332,7 +342,7 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
     public void deleteItem(Long id, Long userId) {
         Item item = getById(id);
         if (item == null) {
-            throw new BadRequestException("闲置不存在");
+            throw new NotFoundException("闲置不存在");
         }
         // 权限校验：仅发布者本人可删除（管理员接口可后续扩展）
         if (!item.getSellerId().equals(userId)) {

@@ -3,11 +3,13 @@ package com.campus.info;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 资讯失物服务启动类
  */
 @MapperScan("com.campus.info.mapper")
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = {"com.campus.info", "com.campus.common"})
 public class InfoApplication {
     public static void main(String[] args) {

@@ -7,16 +7,17 @@ import com.campus.common.exception.DbException;
 import com.campus.common.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.validation.BindException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.util.NestedServletException;
 
-import org.springframework.validation.BindException;
-import org.springframework.web.util.NestedServletException;
-
+import javax.validation.ConstraintViolationException;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +62,33 @@ public class CommonExceptionAdvice {
         log.error("参数异常 -> NestedServletException：{}", e.getMessage());
         log.debug("", e);
         return processResponse(new BadRequestException("请求参数处理异常"));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public Object handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        log.warn("请求体解析失败 -> {}", e.getMessage());
+        return processResponse(new BadRequestException("请求体格式错误"));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public Object handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
+        log.warn("请求参数类型错误 -> {}", e.getMessage());
+        return processResponse(new BadRequestException("请求参数类型错误"));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public Object handleMissingParam(MissingServletRequestParameterException e) {
+        log.warn("缺少请求参数 -> {}", e.getMessage());
+        return processResponse(new BadRequestException("缺少请求参数：" + e.getParameterName()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Object handleConstraintViolation(ConstraintViolationException e) {
+        String msg = e.getConstraintViolations().stream()
+                .map(javax.validation.ConstraintViolation::getMessage)
+                .collect(Collectors.joining("|"));
+        log.warn("请求参数校验异常 -> {}", msg);
+        return processResponse(new BadRequestException(msg));
     }
 
     @ExceptionHandler(Exception.class)

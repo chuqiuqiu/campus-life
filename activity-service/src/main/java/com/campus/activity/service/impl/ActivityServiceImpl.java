@@ -20,6 +20,7 @@ import com.campus.common.domain.PageDTO;
 import com.campus.common.domain.R;
 import com.campus.common.exception.BadRequestException;
 import com.campus.common.exception.ForbiddenException;
+import com.campus.common.exception.NotFoundException;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
@@ -184,7 +185,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             String json = stringRedisTemplate.opsForValue().get(CACHE_ACTIVITY_KEY + id);
             if (json != null) {
                 if (json.isEmpty()) {
-                    return null;
+                    // 空值缓存命中：查无此活动，404 语义（区分于系统错误）
+                    throw new NotFoundException("活动不存在");
                 }
                 activity = JSONUtil.toBean(json, Activity.class);
                 caffeineCache.put(id, activity);
@@ -192,9 +194,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 // 3.回源数据库
                 activity = getById(id);
                 if (activity == null) {
-                    // 缓存空值（防穿透）
+                    // 缓存空值（防穿透），短 TTL，并抛 404
                     stringRedisTemplate.opsForValue().set(CACHE_ACTIVITY_KEY + id, "", CACHE_NULL_TTL.toMillis(), TimeUnit.MILLISECONDS);
-                    return null;
+                    throw new NotFoundException("活动不存在");
                 }
                 stringRedisTemplate.opsForValue().set(CACHE_ACTIVITY_KEY + id, JSONUtil.toJsonStr(activity), CACHE_TTL.toMillis(), TimeUnit.MILLISECONDS);
                 caffeineCache.put(id, activity);
@@ -338,7 +340,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         // 1.校验活动存在
         Activity activity = getById(id);
         if (activity == null) {
-            throw new BadRequestException("活动不存在");
+            throw new NotFoundException("活动不存在");
         }
         // 2.权限校验：组织者或管理员
         if (!activity.getOrganizerId().equals(userId) && !isAdmin(userId)) {
@@ -372,11 +374,12 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                     .isMember(LIKE_ACTIVITY_KEY + activity.getId(), userId.toString())));
             // 是否可管理（组织者或管理员）
             vo.setIsOwner(userId.equals(activity.getOrganizerId()) || isAdmin(userId));
-            // 是否已报名（取消报名按钮依赖此状态）
-            Long signupCount = signupMapper.selectCount(new LambdaQueryWrapper<Signup>()
+            // 是否已报名 + 是否已打卡（打卡按钮与"已打卡"状态展示依赖）
+            Signup signup = signupMapper.selectOne(new LambdaQueryWrapper<Signup>()
                     .eq(Signup::getActivityId, activity.getId())
                     .eq(Signup::getUserId, userId));
-            vo.setSignedUp(signupCount != null && signupCount > 0);
+            vo.setSignedUp(signup != null);
+            vo.setCheckin(signup != null && signup.getCheckinStatus() != null && signup.getCheckinStatus() == 1);
         }
         return vo;
     }

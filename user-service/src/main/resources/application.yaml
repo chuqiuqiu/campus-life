@@ -57,14 +57,14 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.campus.user.controller
-# JWT 配置（与网关共享同一密钥；生产环境务必通过环境变量 JWT_SECRET 注入，不要用默认值）
+# JWT 配置（与网关共享同一密钥；生产必须通过环境变量 JWT_SECRET 注入，无默认值即启动失败）
 hm:
   jwt:
-    secret: ${JWT_SECRET:campus-dev-secret-change-me}
+    secret: ${JWT_SECRET}
     tokenTTL: 30m
-  # 内部服务调用令牌：/users/credit/add 等内部接口仅允许携带该令牌的 Feign 调用访问
+  # 内部服务调用令牌（生产必须通过环境变量 INNER_TOKEN 注入）
   inner:
-    token: ${INNER_TOKEN:campus-inner-token-2024}
+    token: ${INNER_TOKEN}
 feign:
   okhttp:
     enabled: true

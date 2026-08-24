@@ -24,6 +24,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -185,6 +186,38 @@ public class InfoServiceImpl extends ServiceImpl<InfoMapper, Info> implements II
                 vo.setViewCount((vo.getViewCount() == null ? 0 : vo.getViewCount()) + Integer.parseInt(incrStr));
             }
         });
+    }
+
+    /**
+     * 定时任务：每分钟将 Redis 浏览量增量合并回数据库并删除 key（参照 item-service），
+     * 避免 DB view_count 永不更新、Redis key 无限增长
+     */
+    @Override
+    @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 60000)
+    public void syncViewCount() {
+        Set<String> keys = RedisUtils.scanKeys(stringRedisTemplate, VIEW_INFO_KEY + "*");
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+        for (String key : keys) {
+            String id = key.substring(VIEW_INFO_KEY.length());
+            String value = stringRedisTemplate.opsForValue().getAndDelete(key);
+            if (value == null) {
+                continue;
+            }
+            try {
+                long incr = Long.parseLong(value);
+                if (incr == 0) {
+                    continue;
+                }
+                update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<Info>()
+                        .eq(Info::getId, id)
+                        .setSql("view_count = view_count + " + incr));
+            } catch (NumberFormatException e) {
+                log.warn("资讯浏览量脏值，已跳过：key = {}, value = {}", key, value);
+            }
+        }
+        log.info("资讯浏览量合并完成，共处理 {} 个资讯", keys.size());
     }
 
     /**

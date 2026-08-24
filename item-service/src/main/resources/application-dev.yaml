@@ -1,4 +1,4 @@
-# dev 环境：虚拟机 Docker 中间件地址
+# dev 环境：虚拟机 Docker 中间件地址 + 本地开发内部令牌（生产环境必须用环境变量注入）
 hm:
   db:
     host: 192.168.100.128
@@ -6,3 +6,5 @@ hm:
   redis:
     host: 192.168.100.128
     pw: ""
+  inner:
+    token: campus-inner-token-2024

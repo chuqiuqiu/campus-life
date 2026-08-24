@@ -36,6 +36,7 @@
 
 <script>
 import { getUserInfo, clearAuth } from './utils/auth'
+import { logout } from './api/user'
 
 export default {
     name: 'App',
@@ -60,11 +61,14 @@ export default {
             if (command === 'profile') {
                 this.$router.push('/profile').catch(() => {})
             } else if (command === 'logout') {
-                clearAuth()
-                this.userInfo = null
-                this.$message.success('已退出登录')
-                // 跳转回首页，catch 抑制 NavigationDuplicated（已在首页时）
-                this.$router.push('/').catch(() => {})
+                // 先通知后端清理会话缓存，再清本地登录态（失败也不阻塞退出）
+                logout().catch(() => {}).finally(() => {
+                    clearAuth()
+                    this.userInfo = null
+                    this.$message.success('已退出登录')
+                    // 跳转回首页，catch 抑制 NavigationDuplicated（已在首页时）
+                    this.$router.push('/').catch(() => {})
+                })
             }
         }
     }

@@ -18,8 +18,17 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOriginPatterns: "*"
-            allowedMethods: "*"
+            # 仅允许前端门户域名（浏览器实际同源代理，收紧以降低跨域风险）
+            allowedOriginPatterns:
+              - "http://localhost:8088"
+              - "http://127.0.0.1:8088"
+              - "http://192.168.100.128:8088"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
       # 路由配置：统一入口，转发到各微服务（对标黑马商城 hm-gateway）
@@ -48,16 +57,17 @@ logging:
     dateformat: HH:mm:ss:SSS
   file:
     path: "logs/${spring.application.name}"
-# JWT 配置（与 user-service 共享同一密钥；生产环境务必通过环境变量 JWT_SECRET 注入，不要用默认值）
+# JWT 配置（与 user-service 共享同一密钥；生产必须通过环境变量 JWT_SECRET 注入，无默认值即启动失败）
 hm:
   jwt:
-    secret: ${JWT_SECRET:campus-dev-secret-change-me}
+    secret: ${JWT_SECRET}
     tokenTTL: 30m
   auth:
     # 无需登录即可访问的公开接口（Ant 风格匹配，{id:[0-9]+} 限定数字 id，避免误伤 /me /page /favorites 等）
     # 注意：只放行公开查询接口；发布/收藏/报名/打卡/点赞等写操作必须登录（网关校验 token 并透传 user-info）
     excludePaths:
       - /users/login
+      - /users/register
       - /users/{id:[0-9]+}
       - /items/page
       - /items/{id:[0-9]+}

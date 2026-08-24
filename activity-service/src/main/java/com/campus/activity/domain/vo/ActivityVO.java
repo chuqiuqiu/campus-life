@@ -78,6 +78,10 @@ public class ActivityVO {
      */
     private Boolean signedUp;
     /**
+     * 当前用户是否已打卡
+     */
+    private Boolean checkin;
+    /**
      * 当前用户是否可管理该活动（组织者或管理员）
      */
     private Boolean isOwner;

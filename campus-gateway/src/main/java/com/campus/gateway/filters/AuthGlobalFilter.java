@@ -61,14 +61,17 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         if (!isExclude && userId == null) {
             return unauthorized(exchange.getResponse(), "未登录");
         }
-        // 4.登录用户将 userId 写入请求头透传下游（服务端 UserContext 由此获取当前用户）
+        // 4.透传用户身份：先剥离客户端可能伪造的 user-info 头，登录用户再写入真实 userId
+        // （否则白名单路径无 token 时会把伪造头原样透传，下游 UserInfoInterce 会无条件信任）
+        ServerHttpRequest newRequest = request.mutate()
+                .headers(headers -> headers.remove("user-info"))
+                .build();
         if (userId != null) {
-            ServerHttpRequest newRequest = request.mutate()
+            newRequest = newRequest.mutate()
                     .header("user-info", userId.toString())
                     .build();
-            return chain.filter(exchange.mutate().request(newRequest).build());
         }
-        return chain.filter(exchange);
+        return chain.filter(exchange.mutate().request(newRequest).build());
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.campus.common.utils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -48,8 +49,11 @@ public class RedisIdWorker {
         long timestamp = nowSecond - BEGIN_TIMESTAMP;
         // 2.生成序列号（按天自增，每天重置，防止溢出）
         String date = now.format(DateTimeFormatter.ofPattern("yyyy:MM:dd"));
-        long count = stringRedisTemplate.opsForValue().increment("icr:" + keyPrefix + ":" + date);
-        // 3.拼接并返回
+        String key = "icr:" + keyPrefix + ":" + date;
+        long count = stringRedisTemplate.opsForValue().increment(key);
+        // 3.设置 TTL（3 天），避免历史日期 key 无限积累（活跃 key 到期后自然清理）
+        stringRedisTemplate.expire(key, Duration.ofDays(3));
+        // 4.拼接并返回
         return timestamp << COUNT_BITS | count;
     }
 }

@@ -43,4 +43,9 @@ public interface IInfoService extends IService<Info> {
      * @param userId 当前用户id
      */
     void deleteInfo(Long id, Long userId);
+
+    /**
+     * 将 Redis 中的浏览量增量合并回数据库（定时任务调用，防 Redis key 无限增长）
+     */
+    void syncViewCount();
 }

@@ -1,4 +1,4 @@
-# dev 环境：虚拟机 Docker 中间件地址
+# dev 环境：虚拟机 Docker 中间件地址 + 本地开发密钥（生产环境必须用环境变量注入，禁用此处默认值）
 hm:
   db:
     host: 192.168.100.128
@@ -6,3 +6,7 @@ hm:
   redis:
     host: 192.168.100.128
     pw: ""
+  jwt:
+    secret: campus-dev-secret-change-me
+  inner:
+    token: campus-inner-token-2024

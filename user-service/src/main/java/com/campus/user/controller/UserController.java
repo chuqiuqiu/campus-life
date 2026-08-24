@@ -4,8 +4,10 @@ import com.campus.common.domain.R;
 import com.campus.common.exception.ForbiddenException;
 import com.campus.common.utils.UserContext;
 import com.campus.user.domain.dto.LoginFormDTO;
-import com.campus.user.domain.po.User;
+import com.campus.user.domain.dto.UserRegisterDTO;
+import com.campus.user.domain.dto.UserUpdateDTO;
 import com.campus.user.domain.vo.UserLoginVO;
+import com.campus.user.domain.vo.UserPublicVO;
 import com.campus.user.domain.vo.UserVO;
 import com.campus.user.service.IUserService;
 import io.swagger.annotations.Api;
@@ -52,24 +54,42 @@ public class UserController {
     }
 
     /**
-     * 更新当前用户信息
+     * 更新当前用户信息（仅允许修改昵称/头像/性别/学院，防止批量赋值）
      */
     @ApiOperation("更新当前用户信息")
     @PutMapping("/me")
-    public R<Void> updateMe(@RequestBody User user) {
+    public R<Void> updateMe(@RequestBody @Validated UserUpdateDTO dto) {
         Long userId = UserContext.getUser();
-        user.setId(userId);
-        userService.updateUser(user);
+        userService.updateUser(userId, dto);
         return R.ok();
     }
 
     /**
-     * 根据 id 查询用户信息（公开，供前端展示发布者）
+     * 注册（注册即登录，直接返回 token）
      */
-    @ApiOperation("根据id查询用户")
+    @ApiOperation("注册")
+    @PostMapping("/register")
+    public R<UserLoginVO> register(@RequestBody @Validated UserRegisterDTO registerForm) {
+        return R.ok(userService.register(registerForm));
+    }
+
+    /**
+     * 退出登录（清理服务端会话缓存）
+     */
+    @ApiOperation("退出登录")
+    @PostMapping("/logout")
+    public R<Void> logout() {
+        userService.logout(UserContext.getUser());
+        return R.ok();
+    }
+
+    /**
+     * 根据 id 查询用户公开信息（不暴露手机号/积分等敏感字段，供前端展示发布者）
+     */
+    @ApiOperation("根据id查询用户（公开）")
     @GetMapping("/{id}")
-    public R<UserVO> queryUserById(@PathVariable("id") Long id) {
-        return R.ok(userService.me(id));
+    public R<UserPublicVO> queryUserById(@PathVariable("id") Long id) {
+        return R.ok(userService.publicUser(id));
     }
 
     /**

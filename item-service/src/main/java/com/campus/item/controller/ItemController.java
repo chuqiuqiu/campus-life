@@ -82,12 +82,14 @@ public class ItemController {
     }
 
     /**
-     * 更新闲置状态（出售/下架）
+     * 更新闲置状态（出售/下架），仅发布者可操作
      */
     @ApiOperation("更新闲置状态")
     @PutMapping("/{id}/status")
     public R<Void> updateStatus(@PathVariable("id") Long id, @RequestParam("status") Integer status) {
-        itemService.updateStatus(id, status, UserContext.getUser());
+        Long userId = UserContext.getUser();
+        requireLogin(userId);
+        itemService.updateStatus(id, status, userId);
         return R.ok();
     }
 
