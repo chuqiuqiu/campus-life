@@ -131,14 +131,12 @@
 sequenceDiagram
     autonumber
     participant C as 客户端
-    participant G as Gateway
-    participant S as item-service
+    participant S as item
     participant L1 as Caffeine
     participant R as Redis
     participant DB as MySQL
 
-    C->>G: GET /items/2000
-    G->>S: JWT 校验后转发
+    C->>S: GET /items/2000（经网关 JWT）
     S->>L1: getIfPresent(2000)
     alt L1 命中
         L1-->>S: Item
@@ -151,14 +149,14 @@ sequenceDiagram
             S->>R: SETNX lock:item:2000
             alt 抢锁成功
                 S->>DB: SELECT * FROM tb_idle_item
-                S->>R: SET cache:item:2000（30min + 随机偏移）
+                S->>R: SET cache:item:2000 (TTL 30min+rand)
                 S->>L1: put(2000, Item)
             else 抢锁失败
                 S->>S: sleep 50ms 后重试（最多 20 次）
             end
         end
     end
-    S-->>C: ItemVO（浏览量 = DB 存量 + Redis 增量）
+    S-->>C: ItemVO（DB + Redis 浏览量）
 ```
 
 - **穿透**：查库为空时写入空字符串，TTL 2 分钟；
@@ -172,22 +170,20 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant C as 客户端
-    participant G as Gateway
-    participant A as activity-service
+    participant A as activity
     participant R as Redis
     participant DB as MySQL
 
-    C->>G: POST /activities/3001/signup
-    G->>A: 转发并透传 userId
+    C->>A: POST /activities/3001/signup（经网关 JWT）
     A->>DB: 校验活动与报名时间窗口
     A->>R: SETNX 初始化 count / max
-    A->>R: EVAL signup.lua（原子判断名额）
+    A->>R: EVAL signup.lua
     alt 名额充足
         R-->>A: 1
         A->>R: RedisIdWorker 生成全局唯一 ID
         A->>DB: INSERT tb_activity_signup（唯一索引）
         A->>DB: signed_count + 1（带上限条件）
-        A->>R: 热度 +10、清理活动详情缓存
+        A->>R: 热度 +10 / 清缓存
         A-->>C: 报名成功 + signNo
     else 名额不足
         R-->>A: 0
@@ -206,9 +202,9 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant C as 客户端
-    participant I as item-service
-    participant TC as Seata Server
-    participant U as user-service
+    participant I as item
+    participant TC as Seata
+    participant U as user
     participant DB as MySQL
 
     C->>I: POST /items
