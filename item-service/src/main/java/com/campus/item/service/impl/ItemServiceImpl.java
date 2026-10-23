@@ -121,7 +121,27 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
 
     /**
      * 分页查询：无筛选条件时走首页列表缓存（热点数据缓存场景）
+     queryItemPage 接口进来
+    ↓
+判断cacheable？（无筛选、非我的发布、pageNo=1）
+├─true：查询Redis缓存
+│    ├─缓存命中 → fillViewCount() → 返回
+│    └─缓存未命中 → 走数据库查询
+└─false：直接数据库查询
+    ↓
+构建LambdaQueryWrapper条件
+    ↓
+MP page()分页查询数据库
+    ↓
+PO → VO，组装PageDTO
+    ↓
+cacheable=true：写入Redis缓存（原始DB数据，不带redis浏览增量）
+    ↓
+fillViewCount：叠加Redis浏览量
+    ↓
+返回分页对象给Controller
      */
+
     @Override
     public PageDTO<ItemVO> queryItemPage(ItemPageQuery query) {
         // 空字符串视为无筛选条件（前端 el-select 清空后传 "" 而非 null，会导致查不到数据）
@@ -129,7 +149,7 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
         boolean campusBlank = StrUtil.isBlank(query.getCampusArea());
         boolean keywordBlank = StrUtil.isBlank(query.getKeyword());
         // 首页列表（无任何筛选条件，且非"我的发布"查询）走缓存
-        boolean cacheable = categoryBlank && campusBlank && keywordBlank && query.getUserId() == null && query.getPageNo() == 1;
+        boolean cacheable = false; // benchmark baseline: bypass list cache
         String cacheKey = CACHE_ITEM_LIST_KEY + query.getPageNo() + ":" + query.getPageSize();
         if (cacheable) {
             String json = stringRedisTemplate.opsForValue().get(cacheKey);
@@ -260,29 +280,10 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
      * 三级缓存查询：Caffeine -&gt; Redis -&gt; MySQL（互斥锁防击穿）
      */
     private Item queryWithCache(Long id) {
-        // 1.一级缓存 Caffeine
-        Item item = caffeineCache.getIfPresent(id);
-        if (item != null) {
-            return item;
-        }
-        // 2.二级缓存 Redis（空值标记：防穿透）
-        String json = stringRedisTemplate.opsForValue().get(CACHE_ITEM_KEY + id);
-        if (json != null) {
-            if (json.isEmpty()) {
-                return null;
-            }
-            item = JSONUtil.toBean(json, Item.class);
-            caffeineCache.put(id, item);
-            return item;
-        }
-        // 3.两级都 miss：互斥锁回源数据库（防击穿）
-        return queryWithMutex(id);
+        // benchmark baseline: bypass Caffeine and Redis, always query MySQL
+        return getById(id);
     }
 
-    /**
-     * 互斥锁方案：SETNX 加锁，未抢到锁则短暂休眠后循环重试（最多 20 次 ≈ 累计等待 1s）；
-     * 抢到锁后二次检查缓存再回源数据库
-     */
     private Item queryWithMutex(Long id) {
         final int maxRetry = 20;
         for (int i = 0; i < maxRetry; i++) {
