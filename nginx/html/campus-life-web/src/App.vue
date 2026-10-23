@@ -203,4 +203,22 @@ body {
     margin-top: 20px;
     text-align: center;
 }
+
+.cover-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.item-card .cover,
+.cover-lg,
+.act-cover,
+.info-cover,
+.lost-cover {
+    position: relative;
+    overflow: hidden;
+}
 </style>

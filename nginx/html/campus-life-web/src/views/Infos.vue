@@ -12,7 +12,11 @@
             </div>
         </div>
         <div v-for="info in infos" :key="info.id" class="page-card info-item" @click="$router.push('/infos/' + info.id)">
-            <div class="info-cover">📰</div>
+            <div class="info-cover">
+                <span>📰</span>
+                <img v-if="info.cover" class="cover-img" :src="info.cover" alt=""
+                     @error="$event.target.style.display='none'"/>
+            </div>
             <div class="info-body">
                 <div class="info-title">{{ info.title }}</div>
                 <div class="info-meta">

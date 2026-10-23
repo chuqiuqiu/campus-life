@@ -1,7 +1,11 @@
 <template>
     <div v-if="act" class="page-card">
         <div class="detail-head">
-            <div class="cover-lg">🎪</div>
+            <div class="cover-lg">
+                <span>🎪</span>
+                <img v-if="act.image" class="cover-img" :src="act.image" alt=""
+                     @error="$event.target.style.display='none'"/>
+            </div>
             <div class="detail-info">
                 <div class="title">{{ act.title }}</div>
                 <el-tag size="small" :type="statusType(act.status)">{{ statusText(act.status) }}</el-tag>

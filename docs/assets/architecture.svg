@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#CBD5E1"/>
+  </marker>
+  <marker id="arrowIndigo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#4F46E5"/>
+  </marker>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.07"/>
+  </filter>
+</defs>
+<rect width="1600" height="980" fill="#F8FAFC"/>
+
+<text x="60" y="68" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="34" fill="#0F172A" font-weight="bold" text-anchor="start">campus-life · 校园生活服务平台</text>
+<text x="60" y="104" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="17" fill="#64748B" font-weight="normal" text-anchor="start">Spring Cloud Alibaba 微服务架构：网关统一鉴权 + 四域拆分 + Redis 高并发场景 + Seata 分布式事务</text>
+<rect x="1270" y="48" width="92" height="28" rx="14" fill="#ECFDF5" stroke="none" stroke-width="1.5"/>
+<text x="1316.0" y="66" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#0F766E" font-weight="bold" text-anchor="middle">业务服务</text>
+<rect x="1374" y="48" width="82" height="28" rx="14" fill="#EEF2FF" stroke="none" stroke-width="1.5"/>
+<text x="1415.0" y="66" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#4F46E5" font-weight="bold" text-anchor="middle">网关</text>
+<rect x="1468" y="48" width="82" height="28" rx="14" fill="#FFFBEB" stroke="none" stroke-width="1.5"/>
+<text x="1509.0" y="66" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#B45309" font-weight="bold" text-anchor="middle">中间件</text>
+<rect x="650" y="138" width="300" height="72" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="800" y="168" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="18" fill="#0F172A" font-weight="bold" text-anchor="middle">浏览器 / Vue2 + ElementUI</text>
+<text x="800" y="193" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#64748B" font-weight="normal" text-anchor="middle">闲置 · 活动 · 资讯 · 失物招领</text>
+<rect x="650" y="246" width="300" height="72" rx="16" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="800" y="276" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="19" fill="#B45309" font-weight="bold" text-anchor="middle">Nginx  :8088</text>
+<text x="800" y="301" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#92400E" font-weight="normal" text-anchor="middle">静态资源  +  /api 反向代理</text>
+<rect x="650" y="354" width="300" height="82" rx="16" fill="#EEF2FF" stroke="#C7D2FE" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="800" y="385" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="19" fill="#4F46E5" font-weight="bold" text-anchor="middle">campus-gateway  :8080</text>
+<text x="800" y="411" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#3730A3" font-weight="normal" text-anchor="middle">JWT 鉴权 · 路由转发 · 跨域</text>
+<line x1="800" y1="210" x2="800" y2="242" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="800" y1="318" x2="800" y2="350" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="800" y1="436" x2="800" y2="466" stroke="#CBD5E1" stroke-width="2"/>
+<line x1="230" y1="466" x2="1370" y2="466" stroke="#CBD5E1" stroke-width="2"/>
+<text x="812" y="458" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#64748B" font-weight="bold" text-anchor="start">/api/*</text>
+<rect x="60" y="500" width="340" height="178" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="60" y="500" width="8" height="178" rx="4" fill="#0F766E"/>
+<text x="86" y="536" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="17" fill="#0F766E" font-weight="bold" text-anchor="start">user-service  :8081</text>
+<text x="86" y="564" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#64748B" font-weight="normal" text-anchor="start">用户 / JWT / 会话 / 积分</text>
+<rect x="86" y="590" width="135" height="28" rx="14" fill="#ECFDF5" stroke="none" stroke-width="1.5"/>
+<text x="153.5" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#0F766E" font-weight="bold" text-anchor="middle">BCrypt 密码</text>
+<rect x="229" y="590" width="148" height="28" rx="14" fill="#ECFDF5" stroke="none" stroke-width="1.5"/>
+<text x="303.0" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#0F766E" font-weight="bold" text-anchor="middle">IP 限流（Lua）</text>
+<rect x="86" y="624" width="122" height="28" rx="14" fill="#ECFDF5" stroke="none" stroke-width="1.5"/>
+<text x="147.0" y="642" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#0F766E" font-weight="bold" text-anchor="middle">Redis 会话</text>
+<line x1="230" y1="678" x2="230" y2="700" stroke="#CBD5E1" stroke-width="2"/>
+<rect x="440" y="500" width="340" height="178" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="440" y="500" width="8" height="178" rx="4" fill="#4F46E5"/>
+<text x="466" y="536" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="17" fill="#4F46E5" font-weight="bold" text-anchor="start">item-service  :8082</text>
+<text x="466" y="564" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#64748B" font-weight="normal" text-anchor="start">闲置 / 收藏 / 浏览量</text>
+<rect x="466" y="590" width="70" height="28" rx="14" fill="#EEF2FF" stroke="none" stroke-width="1.5"/>
+<text x="501.0" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#4F46E5" font-weight="bold" text-anchor="middle">三级缓存</text>
+<rect x="544" y="590" width="122" height="28" rx="14" fill="#EEF2FF" stroke="none" stroke-width="1.5"/>
+<text x="605.0" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#4F46E5" font-weight="bold" text-anchor="middle">互斥锁 + 空值</text>
+<rect x="466" y="624" width="135" height="28" rx="14" fill="#EEF2FF" stroke="none" stroke-width="1.5"/>
+<text x="533.5" y="642" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#4F46E5" font-weight="bold" text-anchor="middle">Seata 发起方</text>
+<line x1="610" y1="678" x2="610" y2="700" stroke="#CBD5E1" stroke-width="2"/>
+<rect x="820" y="500" width="340" height="178" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="820" y="500" width="8" height="178" rx="4" fill="#BE123C"/>
+<text x="846" y="536" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="17" fill="#BE123C" font-weight="bold" text-anchor="start">activity-service :8083</text>
+<text x="846" y="564" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#64748B" font-weight="normal" text-anchor="start">活动 / 报名 / 点赞 / 热度</text>
+<rect x="846" y="590" width="109" height="28" rx="14" fill="#FFF1F2" stroke="none" stroke-width="1.5"/>
+<text x="900.5" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#BE123C" font-weight="bold" text-anchor="middle">Lua 防超卖</text>
+<rect x="963" y="590" width="122" height="28" rx="14" fill="#FFF1F2" stroke="none" stroke-width="1.5"/>
+<text x="1024.0" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#BE123C" font-weight="bold" text-anchor="middle">Set 一赞一人</text>
+<rect x="846" y="624" width="122" height="28" rx="14" fill="#FFF1F2" stroke="none" stroke-width="1.5"/>
+<text x="907.0" y="642" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#BE123C" font-weight="bold" text-anchor="middle">ZSet 热度榜</text>
+<line x1="990" y1="678" x2="990" y2="700" stroke="#CBD5E1" stroke-width="2"/>
+<rect x="1200" y="500" width="340" height="178" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1200" y="500" width="8" height="178" rx="4" fill="#B45309"/>
+<text x="1226" y="536" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="17" fill="#B45309" font-weight="bold" text-anchor="start">info-service  :8084</text>
+<text x="1226" y="564" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#64748B" font-weight="normal" text-anchor="start">资讯 / 失物招领</text>
+<rect x="1226" y="590" width="161" height="28" rx="14" fill="#FFFBEB" stroke="none" stroke-width="1.5"/>
+<text x="1306.5" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#B45309" font-weight="bold" text-anchor="middle">Redis 唯一 ID</text>
+<rect x="1395" y="590" width="96" height="28" rx="14" fill="#FFFBEB" stroke="none" stroke-width="1.5"/>
+<text x="1443.0" y="608" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#B45309" font-weight="bold" text-anchor="middle">热点列表缓存</text>
+<rect x="1226" y="624" width="83" height="28" rx="14" fill="#FFFBEB" stroke="none" stroke-width="1.5"/>
+<text x="1267.5" y="642" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#B45309" font-weight="bold" text-anchor="middle">浏览量增量</text>
+<line x1="1370" y1="678" x2="1370" y2="700" stroke="#CBD5E1" stroke-width="2"/>
+<line x1="230" y1="466" x2="230" y2="496" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="610" y1="466" x2="610" y2="496" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="990" y1="466" x2="990" y2="496" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="1370" y1="466" x2="1370" y2="496" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 610 500 C 610 478, 230 478, 230 500" stroke="#4F46E5" stroke-width="2.2" fill="none" stroke-dasharray="6 5" marker-end="url(#arrowIndigo)"/>
+<text x="420" y="474" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#4F46E5" font-weight="bold" text-anchor="middle">Feign 加积分</text>
+<line x1="230" y1="700" x2="1370" y2="700" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 5"/>
+<text x="80" y="706" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="12" fill="#64748B" font-weight="normal" text-anchor="start">服务依赖总线</text>
+<rect x="60" y="740" width="330" height="106" rx="16" fill="#FFFBEB" stroke="#B45309" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="82" y="774" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="18" fill="#B45309" font-weight="bold" text-anchor="start">Nacos  :8848</text>
+<text x="82" y="801" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#475569" font-weight="normal" text-anchor="start">注册发现 / 配置中心</text>
+<line x1="225.0" y1="700" x2="225.0" y2="736" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="420" y="740" width="330" height="106" rx="16" fill="#FFF1F2" stroke="#BE123C" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="442" y="774" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="18" fill="#BE123C" font-weight="bold" text-anchor="start">Redis  :6379</text>
+<text x="442" y="801" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#475569" font-weight="normal" text-anchor="start">缓存 / 计数 / Set / ZSet / Lua</text>
+<line x1="585.0" y1="700" x2="585.0" y2="736" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="780" y="740" width="330" height="106" rx="16" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="802" y="774" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="18" fill="#4F46E5" font-weight="bold" text-anchor="start">Seata  :8091</text>
+<text x="802" y="801" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#475569" font-weight="normal" text-anchor="start">AT 分布式事务协调</text>
+<line x1="945.0" y1="700" x2="945.0" y2="736" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1140" y="740" width="400" height="106" rx="16" fill="#ECFDF5" stroke="#0F766E" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="1162" y="774" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="18" fill="#0F766E" font-weight="bold" text-anchor="start">MySQL 8.0+  :3307</text>
+<text x="1162" y="801" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="13" fill="#475569" font-weight="normal" text-anchor="start">campus-user · item · activity · info</text>
+<line x1="1340.0" y1="700" x2="1340.0" y2="736" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="60" y="882" width="1480" height="58" rx="14" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="84" y="918" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#334155" font-weight="bold" text-anchor="start">campus-common</text>
+<text x="240" y="918" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="14" fill="#475569" font-weight="normal" text-anchor="start">统一响应 R  ·  全局异常  ·  RedisIdWorker  ·  IP 限流器  ·  Feign / OpenFeign 配置  ·  公共依赖管理</text>
+<text x="1540" y="962" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="11" fill="#64748B" font-weight="normal" text-anchor="end">端口与组件均来自仓库实际配置</text>
+</svg>

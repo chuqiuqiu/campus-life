@@ -12,7 +12,11 @@
                         <el-button type="success" @click="dialogVisible = true">发布活动</el-button>
                     </div>
                     <div v-for="act in activities" :key="act.id" class="activity-item" @click="$router.push('/activities/' + act.id)">
-                        <div class="act-cover">🎪</div>
+                        <div class="act-cover">
+                            <span>🎪</span>
+                            <img v-if="act.image" class="cover-img" :src="act.image" alt=""
+                                 @error="$event.target.style.display='none'"/>
+                        </div>
                         <div class="act-info">
                             <div class="act-title">{{ act.title }}</div>
                             <div class="act-meta">

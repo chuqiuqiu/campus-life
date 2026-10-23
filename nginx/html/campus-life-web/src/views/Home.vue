@@ -14,7 +14,11 @@
                     </div>
                     <div class="item-grid">
                         <div v-for="item in items" :key="item.id" class="item-card" @click="goItem(item.id)">
-                            <div class="cover">📦</div>
+                            <div class="cover">
+                                <span>📦</span>
+                                <img v-if="item.images" class="cover-img" :src="item.images.split(',')[0]" alt=""
+                                     @error="$event.target.style.display='none'"/>
+                            </div>
                             <div class="body">
                                 <div class="title">{{ item.title }}</div>
                                 <div class="price">¥{{ item.price | fen2yuan }}</div>

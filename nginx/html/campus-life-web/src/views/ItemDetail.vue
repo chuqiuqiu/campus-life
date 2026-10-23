@@ -1,7 +1,11 @@
 <template>
     <div v-if="item" class="page-card">
         <div class="detail-head">
-            <div class="cover-lg">📦</div>
+            <div class="cover-lg">
+                <span>📦</span>
+                <img v-if="item.images" class="cover-img" :src="item.images.split(',')[0]" alt=""
+                     @error="$event.target.style.display='none'"/>
+            </div>
             <div class="detail-info">
                 <div class="title">{{ item.title }}</div>
                 <div class="price">¥{{ item.price | fen2yuan }}</div>

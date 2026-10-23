@@ -1,0 +1,95 @@
+{
+  "url": "http://localhost:8082/items/page?pageNo=1&pageSize=8",
+  "levels": [
+    {
+      "concurrency": 1,
+      "duration_s": 20.008,
+      "requests": 3146,
+      "qps": 157.24,
+      "avg_ms": 6.36,
+      "p50_ms": 5.89,
+      "p90_ms": 8.64,
+      "p95_ms": 9.75,
+      "p99_ms": 13.59,
+      "max_ms": 33.69,
+      "error_count": 0,
+      "error_rate_pct": 0.0,
+      "statuses": {
+        "200": 3146
+      },
+      "run": 2
+    },
+    {
+      "concurrency": 10,
+      "duration_s": 20.007,
+      "requests": 16573,
+      "qps": 828.38,
+      "avg_ms": 12.07,
+      "p50_ms": 11.47,
+      "p90_ms": 15.23,
+      "p95_ms": 17.0,
+      "p99_ms": 24.55,
+      "max_ms": 46.93,
+      "error_count": 0,
+      "error_rate_pct": 0.0,
+      "statuses": {
+        "200": 16573
+      },
+      "run": 2
+    },
+    {
+      "concurrency": 30,
+      "duration_s": 20.011,
+      "requests": 23133,
+      "qps": 1156.02,
+      "avg_ms": 25.94,
+      "p50_ms": 25.3,
+      "p90_ms": 30.09,
+      "p95_ms": 32.31,
+      "p99_ms": 50.73,
+      "max_ms": 72.96,
+      "error_count": 0,
+      "error_rate_pct": 0.0,
+      "statuses": {
+        "200": 23133
+      },
+      "run": 1
+    },
+    {
+      "concurrency": 60,
+      "duration_s": 20.01,
+      "requests": 22896,
+      "qps": 1144.23,
+      "avg_ms": 52.39,
+      "p50_ms": 50.65,
+      "p90_ms": 58.92,
+      "p95_ms": 63.94,
+      "p99_ms": 91.6,
+      "max_ms": 213.91,
+      "error_count": 0,
+      "error_rate_pct": 0.0,
+      "statuses": {
+        "200": 22896
+      },
+      "run": 1
+    },
+    {
+      "concurrency": 100,
+      "duration_s": 20.015,
+      "requests": 22886,
+      "qps": 1143.44,
+      "avg_ms": 87.29,
+      "p50_ms": 85.16,
+      "p90_ms": 95.56,
+      "p95_ms": 102.51,
+      "p99_ms": 135.38,
+      "max_ms": 188.14,
+      "error_count": 0,
+      "error_rate_pct": 0.0,
+      "statuses": {
+        "200": 22886
+      },
+      "run": 2
+    }
+  ]
+}

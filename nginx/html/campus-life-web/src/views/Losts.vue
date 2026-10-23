@@ -13,7 +13,11 @@
             </div>
         </div>
         <div v-for="lost in losts" :key="lost.id" class="page-card lost-item">
-            <div class="lost-cover">🔍</div>
+            <div class="lost-cover">
+                <span>🔍</span>
+                <img v-if="lost.image" class="cover-img" :src="lost.image" alt=""
+                     @error="$event.target.style.display='none'"/>
+            </div>
             <div class="lost-body">
                 <div class="lost-title">
                     {{ lost.title }}
